@@ -35,7 +35,7 @@ import userRoutes from './modules/users/user.routes';
 // =============================================================================
 
 const app = express();
-const PORT = process.env.BACKEND_PORT || 4000;
+const PORT = process.env.PORT || process.env.BACKEND_PORT || 5000;
 
 // =============================================================================
 // Middleware Stack
@@ -116,9 +116,9 @@ async function startServer() {
     await prisma.$connect();
     console.log('✅ PostgreSQL connected via Prisma');
 
-    app.listen(PORT, () => {
-      console.log(`\n🚀 Server running on http://localhost:${PORT}`);
-      console.log(`📚 API docs: http://localhost:${PORT}/api/health`);
+    app.listen(PORT as number, '0.0.0.0', () => {
+      console.log(`\n🚀 Server running on http://0.0.0.0:${PORT}`);
+      console.log(`📚 API docs: http://0.0.0.0:${PORT}/api/health`);
       console.log(`🌍 Environment: ${process.env.NODE_ENV || 'development'}\n`);
     });
   } catch (error) {
