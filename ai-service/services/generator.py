@@ -23,8 +23,8 @@ load_dotenv()
 HF_TOKEN = os.getenv("HUGGINGFACE_API_KEY")
 
 llm = HuggingFaceEndpoint(
-    repo_id="deepseek-ai/DeepSeek-R1-Distill-Qwen-7B",
-    task="conversational",
+    repo_id="Qwen/Qwen2.5-7B-Instruct",
+    task="text-generation",
     max_new_tokens=1024,
     temperature=0.3, # Low temp for structured JSON logic
     repetition_penalty=1.1,
