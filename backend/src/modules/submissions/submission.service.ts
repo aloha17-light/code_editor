@@ -11,7 +11,9 @@ import { AppError } from '../../lib/errors';
 import { SubmitCodeInput } from './submission.schema';
 import { Language, Verdict } from '@prisma/client';
 
-const JUDGE0_URL = process.env.JUDGE0_URL || 'http://localhost:2358';
+const JUDGE0_URL = process.env.JUDGE0_API_URL || process.env.JUDGE0_URL || 'http://localhost:2358';
+const JUDGE0_API_KEY = process.env.JUDGE0_API_KEY || ''; // If using managed RapidAPI
+const JUDGE0_HOST = process.env.JUDGE0_HOST || 'judge0-ce.p.rapidapi.com';
 
 // Maps our Prisma Language Enums to Judge0 CE internal Language IDs
 function getJudge0LanguageId(lang: Language): number {
@@ -72,9 +74,20 @@ export async function processSubmission(userId: string, problemId: string, data:
   try {
     // 3. Send to Judge0 using synchronous `wait=true` mode
     // (In production with heavy load, use async webhooks or polling)
+    const requestConfig: any = {
+      headers: {
+        'Content-Type': 'application/json',
+      }
+    };
+
+    if (JUDGE0_API_KEY) {
+      requestConfig.headers['X-RapidAPI-Key'] = JUDGE0_API_KEY;
+      requestConfig.headers['X-RapidAPI-Host'] = JUDGE0_HOST;
+    }
+
     const response = await axios.post(`${JUDGE0_URL}/submissions/batch?wait=true`, {
       submissions
-    });
+    }, requestConfig);
 
     const results = response.data; // Array of judge0 outputs
     
