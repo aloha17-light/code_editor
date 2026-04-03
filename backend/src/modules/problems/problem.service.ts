@@ -36,7 +36,8 @@ export async function generateProblem(userId: string, data: GenerateProblemInput
       difficulty: data.difficulty,
       previous_topics: previousTopics,
     });
-    aiResponseData = response.data;
+    // FASTAPI returns {"success": true, "data": { problem json }}
+    aiResponseData = response.data.data ? response.data.data : response.data;
   } catch (error: any) {
     console.error('AI Service Error:', error.response?.data || error.message);
     throw new AppError('Failed to generate problem from AI service', 502); // 502 Bad Gateway
