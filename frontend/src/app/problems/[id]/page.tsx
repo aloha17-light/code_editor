@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, use } from 'react';
 import { notFound } from 'next/navigation';
 import api from '@/lib/api';
 import EditorWorkspace from '@/components/editor/EditorWorkspace';
@@ -21,7 +21,8 @@ interface Problem {
   constraints: string;
 }
 
-export default function ProblemPage({ params }: { params: { id: string } }) {
+export default function ProblemPage({ params }: { params: Promise<{ id: string }> }) {
+  const resolvedParams = use(params);
   const [problem, setProblem] = useState<Problem | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
@@ -29,13 +30,13 @@ export default function ProblemPage({ params }: { params: { id: string } }) {
   useEffect(() => {
     async function fetchProblem() {
       try {
-        const res = await api.get(`/problems/${params.id}`);
+        const res = await api.get(`/problems/${resolvedParams.id}`);
         setProblem(res.data.data);
       } catch (err: any) {
         if (err.response?.status === 404) {
-          setError(err.response?.data?.message || 'Problem not found.');
+          setError('Problem not found.');
         } else {
-          setError(err.response?.data?.message || 'Failed to load problem.');
+          setError('Failed to load problem.');
         }
       } finally {
         setLoading(false);
@@ -43,7 +44,7 @@ export default function ProblemPage({ params }: { params: { id: string } }) {
     }
 
     fetchProblem();
-  }, [params.id]);
+  }, [resolvedParams.id]);
 
   if (loading) {
     return (
