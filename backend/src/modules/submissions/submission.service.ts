@@ -261,6 +261,7 @@ export async function evaluateSubmission(submissionId: string, userId: string) {
 
   } catch (err: any) {
     console.error('AI Evaluator Error:', err.response?.data || err.message);
-    throw new AppError('AI Evaluator is currently at capacity or unavailable.', 503);
+    const detail = err.response?.data?.detail || err.message || 'Unknown error';
+    throw new AppError(`AI Evaluator failed. Engine says: ${detail}`, 503);
   }
 }

@@ -40,7 +40,8 @@ export async function generateProblem(userId: string, data: GenerateProblemInput
     aiResponseData = response.data.data ? response.data.data : response.data;
   } catch (error: any) {
     console.error('AI Service Error:', error.response?.data || error.message);
-    throw new AppError('Failed to generate problem from AI service', 502); // 502 Bad Gateway
+    const detail = error.response?.data?.detail || error.message || 'Unknown network error';
+    throw new AppError(`Failed to generate problem. AI Engine says: ${detail}`, 502); 
   }
 
   // 3. Save into PostgreSQL
