@@ -142,7 +142,8 @@ export async function processSubmission(userId: string, problemId: string, data:
 
   } catch (err: any) {
     console.error('Piston Execution Error:', err.response?.data || err.message);
-    throw new AppError('Code Execution Engine is unavailable.', 503);
+    const detail = err.response?.data?.message || err.message || 'Unknown network error';
+    throw new AppError(`Code Execution Engine is unavailable: ${detail}`, 503);
   }
 }
 
