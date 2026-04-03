@@ -45,6 +45,15 @@ jobs:
               sudo usermod -aG docker ubuntu
             fi
 
+            # Allocate 2GB Swap Memory to prevent t2.micro Docker Build OOM Crashes
+            if [ ! -f /swapfile ]; then
+              sudo fallocate -l 2G /swapfile
+              sudo chmod 600 /swapfile
+              sudo mkswap /swapfile
+              sudo swapon /swapfile
+              echo '/swapfile none swap sw 0 0' | sudo tee -a /etc/fstab
+            fi
+
             # Install Docker Compose if not present (First time deployment)
             if ! command -v docker-compose &> /dev/null; then
               sudo curl -L "https://github.com/docker/compose/releases/latest/download/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
