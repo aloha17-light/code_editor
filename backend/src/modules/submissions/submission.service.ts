@@ -161,7 +161,7 @@ export async function processSubmission(userId: string, problemId: string, data:
         finalVerdict = res.signal ? 'TIME_LIMIT_EXCEEDED' : 'RUNTIME_ERROR';
       } else {
         // Compare stdout with expectedOutput
-        if (stdout.trim() !== tc.expectedOutput.trim()) {
+        if (String(stdout).trim() !== String(tc.expectedOutput).trim()) {
            statusId = 4;
            description = 'WRONG ANSWER';
            finalVerdict = 'WRONG_ANSWER';
