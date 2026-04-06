@@ -23,6 +23,28 @@ export default function DashboardPage() {
   const [isLoadingStats, setIsLoadingStats] = useState(true);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
 
+  // Generate 30 days mock activity data
+  const [activityData] = useState(() => {
+    return Array.from({ length: 30 }, (_, i) => {
+      const date = new Date();
+      date.setDate(date.getDate() - (29 - i));
+      // Bias slightly towards level 0 or 1 for realistic look
+      const rand = Math.random();
+      const level = rand > 0.8 ? 4 : rand > 0.6 ? 3 : rand > 0.3 ? 2 : rand > 0.1 ? 1 : 0;
+      return { id: i, date, level };
+    });
+  });
+
+  const getActivityColor = (level: number) => {
+    switch (level) {
+      case 1: return 'bg-indigo-900/40 border border-indigo-800/30';
+      case 2: return 'bg-indigo-700/60 border border-indigo-600/40';
+      case 3: return 'bg-indigo-500/80 border border-indigo-400';
+      case 4: return 'bg-indigo-400 border border-indigo-300 shadow-[0_0_10px_rgba(129,140,248,0.4)]';
+      default: return 'bg-[#0f0f0f] border border-gray-800/60';
+    }
+  };
+
   // Initialize auth state from localStorage on mount
   useEffect(() => {
     initialize();
@@ -163,6 +185,32 @@ export default function DashboardPage() {
             >
               Generate Problem <ArrowRight size={16} />
             </Link>
+          </div>
+        </div>
+
+        {/* Activity Heatmap */}
+        <div className="bg-[#0a0a0a] border border-gray-800 rounded-2xl p-6">
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-lg font-bold text-white mb-1">Recent Activity</h2>
+            <span className="text-xs text-gray-500">Last 30 Days</span>
+          </div>
+          <div className="flex items-center gap-2 overflow-x-auto pb-2 scrollbar-thin scrollbar-thumb-gray-800 scrollbar-track-transparent">
+            {activityData.map((day) => (
+              <div 
+                key={day.id} 
+                className={`w-4 h-4 rounded-[4px] shrink-0 transition-all duration-300 hover:scale-125 cursor-pointer ${getActivityColor(day.level)}`}
+                title={`${day.date.toLocaleDateString()}: Level ${day.level}`}
+              />
+            ))}
+          </div>
+          <div className="flex items-center justify-end gap-2 mt-3 text-xs text-gray-500">
+            <span>Less</span>
+            <div className={`w-3 h-3 rounded-sm ${getActivityColor(0)}`} />
+            <div className={`w-3 h-3 rounded-sm ${getActivityColor(1)}`} />
+            <div className={`w-3 h-3 rounded-sm ${getActivityColor(2)}`} />
+            <div className={`w-3 h-3 rounded-sm ${getActivityColor(3)}`} />
+            <div className={`w-3 h-3 rounded-sm ${getActivityColor(4)}`} />
+            <span>More</span>
           </div>
         </div>
 
