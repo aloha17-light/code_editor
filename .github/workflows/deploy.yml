@@ -26,6 +26,11 @@ jobs:
             mkdir -p /home/ubuntu/codeforge
             cd /home/ubuntu/codeforge
 
+            # Emergency Disk Space Cleanup (Removes the 2GB swap file and clears stale Docker layers)
+            sudo swapoff /swapfile || true
+            sudo rm -f /swapfile || true
+            sudo docker system prune -af --volumes || true
+
             # Initialize git repo if it doesn't exist (First time deployment)
             if [ ! -d .git ]; then
               git init
