@@ -93,7 +93,7 @@ export default function EditorWorkspace({ problemId, roomId }: EditorWorkspacePr
     ydocRef.current = ydoc;
 
     // 2. Connect to the collaboration WebSocket server
-    const wsUrl = process.env.NEXT_PUBLIC_COLLAB_URL || 'ws://localhost:1234';
+    const wsUrl = process.env.NEXT_PUBLIC_COLLAB_URL || 'ws://localhost:4444';
     const provider = new WebsocketProvider(wsUrl, roomId, ydoc, {
       connect: true,
     });

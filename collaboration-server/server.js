@@ -59,8 +59,8 @@ const { setupWSConnection } = require('y-websocket/bin/utils');
 // Configuration
 // =============================================================================
 
-const PORT = process.env.PORT || 1234;
-const HOST = process.env.HOST || '0.0.0.0';
+const PORT = process.env.PORT || 4444;
+const HOST = process.env.HOST || 'localhost';
 
 // =============================================================================
 // Step 1: Create a standard HTTP server
