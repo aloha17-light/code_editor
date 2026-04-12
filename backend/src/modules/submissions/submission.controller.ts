@@ -38,7 +38,7 @@ export async function traceCode(req: Request, res: Response, next: NextFunction)
     const { sourceCode } = req.body;
     
     // Using our Phase 5 tracer
-    const trace = await process.mockTrace ? [] : await require('./submission.service').generateTrace(sourceCode);
+    const trace = await (process.env.MOCK_TRACE === 'true') ? [] : await require('./submission.service').generateTrace(sourceCode);
     
     res.status(200).json({
       success: true,
