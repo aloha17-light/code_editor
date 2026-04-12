@@ -265,3 +265,40 @@ export async function evaluateSubmission(submissionId: string, userId: string) {
     throw new AppError(`AI Evaluator failed. Engine says: ${detail}`, 503);
   }
 }
+
+// Phase 5: Python Trace Engine
+export async function generateTrace(sourceCode: string) {
+  const runId = uuidv4();
+  const tmpDir = path.join('/tmp', `trace_${runId}`);
+  fs.mkdirSync(tmpDir, { recursive: true });
+
+  const scriptPath = path.join(tmpDir, 'main.py');
+  fs.writeFileSync(scriptPath, sourceCode);
+
+  const tracerPath = path.resolve(__dirname, '../../utils/tracer.py');
+
+  try {
+    // Run the tracer script passing the path to the user's script
+    const result = await execAsync(`python3 "${tracerPath}" "${scriptPath}"`, { timeout: 4000 });
+    
+    // Parse the JSON output from stdout
+    try {
+      const parsedOutput = JSON.parse(result.stdout);
+      if (parsedOutput.success) {
+        return parsedOutput.trace;
+      } else {
+         throw new Error(parsedOutput.error || "Unknown tracer formatting error.");
+      }
+    } catch (parseErr) {
+       console.error("Tracer JSON parse error:", result.stdout);
+       throw new Error("Tracer emitted invalid JSON.");
+    }
+
+  } catch (err: any) {
+    console.error('Trace execution failed:', err.message || err);
+    throw new AppError(`Execution trace failed: ${err.message || "Timeout or syntax error."}`, 500);
+  } finally {
+    fs.rmSync(tmpDir, { recursive: true, force: true });
+  }
+}
+

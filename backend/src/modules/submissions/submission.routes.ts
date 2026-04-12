@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { submitCode, evaluate } from './submission.controller';
+import { submitCode, evaluate, traceCode } from './submission.controller';
 import { validate } from '../../middleware/validate.middleware';
 import { authMiddleware } from '../../middleware/auth.middleware';
 import { submitCodeSchema } from './submission.schema';
@@ -13,5 +13,9 @@ router.post('/:problemId', authMiddleware, validate(submitCodeSchema), submitCod
 // POST /api/submissions/:submissionId/evaluate
 // Calls LangChain to AI-review a specific past submission
 router.post('/:submissionId/evaluate', authMiddleware, evaluate);
+
+// POST /api/submissions/trace
+// Executes user code via sys.settrace() and returns variable states
+router.post('/trace', authMiddleware, traceCode);
 
 export default router;
