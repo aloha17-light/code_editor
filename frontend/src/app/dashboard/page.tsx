@@ -101,6 +101,9 @@ export default function DashboardPage() {
                 </div>
                 
                 <div className="py-2">
+                  <Link href="/profile" className="block w-full text-left px-4 py-2 text-sm text-gray-300 hover:bg-gray-800 hover:text-white transition-colors">
+                    My Profile & History
+                  </Link>
                   <button className="w-full text-left px-4 py-2 text-sm text-gray-300 hover:bg-gray-800 hover:text-white transition-colors">
                     Settings
                   </button>

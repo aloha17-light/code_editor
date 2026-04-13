@@ -266,7 +266,36 @@ export async function evaluateSubmission(submissionId: string, userId: string) {
   }
 }
 
-// Phase 5: Python Trace Engine
+// Phase: Submission History
+// Returns all ACCEPTED submissions for a user, ordered by most recent first.
+export async function getAcceptedSubmissions(userId: string) {
+  const submissions = await prisma.submission.findMany({
+    where: {
+      userId,
+      verdict: 'ACCEPTED',
+    },
+    orderBy: { createdAt: 'desc' },
+    select: {
+      id: true,
+      language: true,
+      sourceCode: true,
+      runtime: true,
+      memory: true,
+      createdAt: true,
+      problem: {
+        select: {
+          id: true,
+          title: true,
+          topic: true,
+          difficulty: true,
+        },
+      },
+    },
+  });
+
+  return submissions;
+}
+
 export async function generateTrace(sourceCode: string) {
   const runId = uuidv4();
   const tmpDir = path.join('/tmp', `trace_${runId}`);
