@@ -172,10 +172,15 @@ export default function ProfilePage() {
   const { user, isAuthenticated, initialize, logout } = useAuthStore();
   const [history, setHistory] = useState<Submission[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [fetchError, setFetchError] = useState<string | null>(null);
   const [filter, setFilter] = useState<'ALL' | 'EASY' | 'MEDIUM' | 'HARD'>('ALL');
   const [langFilter, setLangFilter] = useState<string>('ALL');
+  const [initialized, setInitialized] = useState(false);
 
-  useEffect(() => { initialize(); }, [initialize]);
+  useEffect(() => {
+    initialize();
+    setInitialized(true);
+  }, [initialize]);
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -185,12 +190,26 @@ export default function ProfilePage() {
   }, [router]);
 
   useEffect(() => {
-    if (!isAuthenticated) return;
+    if (!initialized) return;
+    // Read token directly from localStorage — avoids React state timing issues
+    const token = localStorage.getItem('token');
+    if (!token) {
+      setIsLoading(false);
+      return;
+    }
+    setFetchError(null);
     api.get('/submissions/history')
-      .then(res => setHistory(res.data.data))
-      .catch(console.error)
+      .then(res => {
+        const data = res.data.data;
+        setHistory(Array.isArray(data) ? data : []);
+      })
+      .catch((err) => {
+        const msg = err.response?.data?.message || err.message || 'Failed to load history';
+        setFetchError(msg);
+        console.error('History fetch error:', err);
+      })
       .finally(() => setIsLoading(false));
-  }, [isAuthenticated]);
+  }, [initialized]);
 
   if (!isAuthenticated || !user) {
     return (
@@ -321,6 +340,17 @@ export default function ProfilePage() {
           {isLoading ? (
             <div className="flex items-center justify-center py-24">
               <Loader2 className="animate-spin text-indigo-500" size={36} />
+            </div>
+          ) : fetchError ? (
+            <div className="flex flex-col items-center justify-center text-center py-16 border-2 border-dashed border-red-800/40 rounded-2xl">
+              <p className="text-red-400 font-bold mb-2">Failed to load history</p>
+              <p className="text-xs text-red-500/80 font-mono bg-red-900/10 px-4 py-2 rounded-lg mb-4 max-w-md break-all">{fetchError}</p>
+              <button
+                onClick={() => { setIsLoading(true); setFetchError(null); api.get('/submissions/history').then(res => setHistory(Array.isArray(res.data.data) ? res.data.data : [])).catch(e => setFetchError(e.message)).finally(() => setIsLoading(false)); }}
+                className="px-4 py-2 bg-red-600 hover:bg-red-500 text-white text-sm font-bold rounded-lg transition-all"
+              >
+                Retry
+              </button>
             </div>
           ) : filtered.length === 0 ? (
             <div className="flex flex-col items-center justify-center text-center py-24 border-2 border-dashed border-gray-800 rounded-2xl">
