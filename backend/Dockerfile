@@ -25,4 +25,4 @@ COPY --from=builder /app/package*.json ./
 COPY --from=builder /app/prisma ./prisma
 
 EXPOSE 5000
-CMD npx prisma db push --accept-data-loss && node dist/index.js
+CMD sh -c "npx prisma db push --accept-data-loss --skip-generate || true && node dist/index.js"
