@@ -23,8 +23,11 @@ dotenv.config();
  * Connects using REDIS_URL from environment variables.
  * Falls back to localhost with no password for local development.
  */
-const redis = new Redis(process.env.REDIS_URL || 'redis://localhost:6379', {
-  db: 0, // Upstash free tier only supports database 0
+// Strip the database number from the Redis URL (Upstash free tier only supports DB 0)
+const rawRedisUrl = process.env.REDIS_URL || 'redis://localhost:6379';
+const redisUrl = rawRedisUrl.replace(/\/\d+\s*"?\s*$/, '/0');
+
+const redis = new Redis(redisUrl, {
   maxRetriesPerRequest: 3,
   retryStrategy(times: number) {
     // Exponential backoff: 2^times * 50ms, capped at 2 seconds
